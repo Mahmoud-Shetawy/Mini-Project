@@ -1,11 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { OrderRepository } from '../../../application/data/database/sql/repositories/order.repository';
 import { Order } from '../../../application/data/database/sql/models/order.model';
-import { CreateOrderDto } from '../../../application/data/dto/create-order.dto';
-import { UpdateOrderDto } from '../../../application/data/dto/update-order.dto';
+import { CreateOrderDto } from '../../../application/data/dto/order/create-order.dto';
+import { UpdateOrderDto } from '../../../application/data/dto/order/update-order.dto';
 
 @Injectable()
-export class OrderService {
+export class OrdersService {
   constructor(private readonly orderRepository: OrderRepository) {}
 
   async findAll(): Promise<Order[]> {
