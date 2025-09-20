@@ -2,6 +2,9 @@ import { Module } from '@nestjs/common';
 import { OrderRepository } from './repositories/order.repository';
 import { Order } from './models/order.model';
 import { Sequelize } from 'sequelize-typescript';
+import { User } from './models/user.model';
+import { UserRepository } from './repositories/user.repository';
+
 export const databaseProviders = [
   {
     provide: 'SEQUELIZE',
@@ -14,14 +17,15 @@ export const databaseProviders = [
         password: process.env.DB_PASSWORD ?? 'Sheto!123',
         database: process.env.DB_NAME ?? 'mini_project',
       });
-      sequelize.addModels([Order]);
+      sequelize.addModels([Order, User]);
       await sequelize.sync();
       return sequelize;
     },
   },
 ];
+
 @Module({
-  providers: [...databaseProviders, OrderRepository],
-  exports: [...databaseProviders, OrderRepository],
+  providers: [...databaseProviders, OrderRepository, UserRepository],
+  exports: [...databaseProviders, OrderRepository, UserRepository],
 })
 export class DBModule {}

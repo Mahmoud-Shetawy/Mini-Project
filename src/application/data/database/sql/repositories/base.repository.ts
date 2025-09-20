@@ -21,6 +21,12 @@ export abstract class BaseRepository<T extends Model> {
     return this.model.findByPk(id);
   }
 
+  async findByEmail(email: string): Promise<T | null> {
+    return this.model.findOne({
+      where: { email },
+    } as any);
+  }
+
   async create(data: any): Promise<T> {
     return this.model.create(data);
   }
