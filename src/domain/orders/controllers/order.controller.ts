@@ -23,18 +23,34 @@ export class OrderController {
   constructor(private readonly orderService: OrdersService) {}
 
   @Get()
-  async findAll() {
-    const orders = await this.orderService.findAll();
+  @UseGuards(JwtGuard)
+  async findAll(@Request() req) {
+    if (!req.user) {
+      return {
+        success: false,
+        message: 'Unauthorized access',
+      };
+    }
+
+    const orders = await this.orderService.findAllByUser(req.user.id);
     return {
       success: true,
-      message: 'Get all orders',
+      message: 'Get all your orders',
       data: orders,
     };
   }
 
   @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number) {
-    const order = await this.orderService.findOne(id);
+  @UseGuards(JwtGuard)
+  async findOne(@Param('id', ParseIntPipe) id: number, @Request() req) {
+    if (!req.user) {
+      return {
+        success: false,
+        message: 'Unauthorized access',
+      };
+    }
+
+    const order = await this.orderService.findOneByUser(id, req.user.id);
     return {
       success: true,
       message: `Get order with id: ${id}`,
@@ -52,9 +68,7 @@ export class OrderController {
       };
     }
 
-    createOrderDto.userId = req.user.id;
-
-    const order = await this.orderService.create(createOrderDto);
+    const order = await this.orderService.create(createOrderDto, req.user.id);
     return {
       success: true,
       message: 'Order created successfully',
@@ -77,7 +91,11 @@ export class OrderController {
     }
 
     try {
-      const updatedOrder = await this.orderService.update(id, updateOrderDto);
+      const updatedOrder = await this.orderService.updateByUser(
+        id,
+        updateOrderDto,
+        req.user.id,
+      );
       return {
         success: true,
         message: `Order with id: ${id} updated successfully`,
@@ -87,7 +105,7 @@ export class OrderController {
       if (error instanceof NotFoundException) {
         return {
           success: false,
-          message: `Order with ID ${id} not found`,
+          message: error.message,
         };
       }
       throw error;
@@ -106,7 +124,7 @@ export class OrderController {
     }
 
     try {
-      await this.orderService.remove(id);
+      await this.orderService.removeByUser(id, req.user.id);
       return {
         success: true,
         message: `Order with id: ${id} deleted successfully`,
@@ -115,7 +133,7 @@ export class OrderController {
       if (error instanceof NotFoundException) {
         return {
           success: false,
-          message: `Order with ID ${id} not found`,
+          message: error.message,
         };
       }
       throw error;
