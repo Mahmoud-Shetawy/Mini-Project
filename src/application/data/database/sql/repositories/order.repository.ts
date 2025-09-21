@@ -12,4 +12,12 @@ export class OrderRepository extends BaseRepository<Order> {
   getModel(): ModelCtor<Order> {
     return Order;
   }
+
+  async findByPk(id: number, options: any = {}): Promise<Order | null> {
+    return this.model.findByPk(id, options);
+  }
+
+  async findAll(options: any = {}): Promise<Order[]> {
+    return this.model.findAll(options);
+  }
 }
